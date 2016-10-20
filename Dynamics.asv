@@ -1,0 +1,140 @@
+classdef Dynamics
+       
+    properties
+       N;
+       d;
+        
+       gamma;
+       
+       delta;
+       
+      
+       
+       eps;
+       
+    
+       
+       M;
+       
+       cp;
+       
+       
+       A;
+        
+    end
+    
+    
+    
+    
+    
+    
+    methods
+        
+        function obj = Dynamics(N, d, gamma, delta,  M, A)
+            obj.N = N;
+            obj.d = d;
+            obj.delta = delta;
+            obj.gamma = gamma;
+          
+            obj.M = M;
+            
+            obj.A = A;
+         
+            
+            %cutoff precision
+%             obj.cp = 0.0000001;% worse than 0
+            obj.cp = 0;
+        end
+        
+
+        
+        
+        
+        function res = fx(obj, v)
+            res = v;
+        end
+        
+            
+        
+        function res = fv(obj, x, v, key)
+            res = zeros(obj.N, obj.d);
+            
+
+            for i=1:obj.N
+                temp = zeros(1, obj.d);
+                for j=1:obj.N
+                    temp = temp+  obj.a(norm(x(i, :) - x(j, :))) * (v(j, :) - v(i, :));
+                end 
+                
+%                 disp([i   v(i,:)]);
+                res(i, :) = temp/obj.N + obj.control(x, v, i, key, ckey);
+            end
+        end
+        
+        function res = control(obj, x, v, i, key)
+            if strcmp(key, 'my')
+                nfactor = 0;
+                for j = 1:obj.N
+                    nfactor = nfactor+  obj.A(i, j);
+                    res = res+  obj.A(i, j)*v(j, :);
+                end
+                res = res/nfactor - v(i, :);
+            end
+            
+            if strcmp(key, 'BFK')
+%                 global 
+                res = obj.mean(v) - v(i, :);
+            end
+
+
+             
+            
+            res = res * obj.M;
+        end
+        
+        
+        function res = mean(obj, w)
+            temp = zeros(1, obj.d);
+            for j = 1:obj.N
+                temp = temp+    w(j, :);
+            end
+            
+            res = temp/obj.N;
+        end
+        
+              
+        function res = a(obj, r)
+            res = 1/(1 + r^2)^obj.delta;
+        end
+        
+
+        
+        
+               
+        
+        function res = F(obj, argx, u)
+            [x, v] = convert(argx, obj.N, obj.d);
+            fv = obj.fv(x, v, u);
+            res = [reshape(obj.fx(v)', [obj.N*obj.d, 1]);    reshape(fv', [obj.N*obj.d, 1])];
+        end
+        
+        
+        
+        
+        
+        
+        
+    
+    
+        
+        
+    end 
+    
+    
+    methods(Static)
+        
+        
+    end
+    
+end
+
