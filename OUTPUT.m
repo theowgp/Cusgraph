@@ -12,7 +12,7 @@ normvBFK = norm(solxBFK(N*d+1:2*N*d, end))
 
 %% CALCULATE ENERGIES
 energy_my = control_energy(solx, dynamics, mesh, N, d, 'my')
-energy_BFK = control_energy(solx, dynamics, mesh, N, d, 'BFK')
+energy_BFK = control_energy(solxBFK, dynamics, mesh, N, d, 'BFK')
 
 
 %% PLOT THE LYAPUNOV FUNCTION

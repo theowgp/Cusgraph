@@ -23,14 +23,21 @@ x0 = initx(N, d, N);
 v0 = initv(N, d, N);
 % v0 = v00;
 
+%% SET THE WEIGHT MATRIX AND THE INITIAL GRAPH
+Weights = set_weights_matrix(v0, N);
+GraphK = ones(N) - eye(N);
 
 
+%% GET THE MINIMUM SPANNING TREE
+[w_st, ST, X_st] = kruskal(GraphK, Weights);
+ 
 
 %% CREATE THE DYNAMICS
 gamma = 1;
 delta = 1;
 M = 1;
-SET_ADJACENCY_MATRIX;% script;
+% Adjacency = set_adjacency_matrix(N);
+Adjacency = X_st;
 dynamics = Dynamics(N, d, gamma, delta,  M, Adjacency);
 
 
