@@ -56,7 +56,7 @@ classdef Dynamics
         
             
         
-        function res = fv(obj, x, v, key)
+        function [obj, res] = fv(obj, x, v, key)
             res = zeros(obj.N, obj.d);
             
 
@@ -65,13 +65,15 @@ classdef Dynamics
                 for j=1:obj.N
                     temp = temp+  obj.a(norm(x(i, :) - x(j, :))) * (v(j, :) - v(i, :));
                 end 
-                
-                res(i, :) = temp/obj.N + obj.control(v, i, key);
+                [obj, ctrl] = obj.control(x, v, i, key);
+                res(i, :) = temp/obj.N + ctrl;
             end
         end
         
-        function res = control(obj, v, i, key)
+        function [obj, res] = control(obj, x, v, i, key)
             res = zeros(1, obj.d);
+            Adjc = set_adjacency_matrix(v, obj.N);
+%             Adjc = obj.A;
             
             if strcmp(key, 'my')
                 nfactor = 0;
@@ -87,8 +89,12 @@ classdef Dynamics
                 res = obj.mean(v) - v(i, :);
             end
 
-
-             
+            if ~compare_matrices( Adjc, obj.A, obj.N )
+                 warning('zaraza');
+                 gplot( Adjc, x, '-*')
+                 hold all
+            end
+            obj.A = Adjc;
             
             res = res * obj.M;
         end
@@ -114,9 +120,9 @@ classdef Dynamics
         
                
         
-        function res = F(obj, argx, u)
+        function [obj, res] = F(obj, argx, u)
             [x, v] = convert(argx, obj.N, obj.d);
-            fv = obj.fv(x, v, u);
+            [obj, fv] = obj.fv(x, v, u);
             res = [reshape(obj.fx(v)', [obj.N*obj.d, 1]);    reshape(fv', [obj.N*obj.d, 1])];
         end
         

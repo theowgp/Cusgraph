@@ -48,10 +48,12 @@ classdef RungeKutta
                    soly(:, k, i) = solx(:, k);
                    for j=1:obj.s
                        if i>j
-                           soly(:, k, i) = soly(:, k, i) + obj.grid.h * obj.A(i, j) * obj.dynamics.F(soly(:, k, j), key);
+                           [obj.dynamics, f] = obj.dynamics.F(soly(:, k, j), key);
+                           soly(:, k, i) = soly(:, k, i) + obj.grid.h * obj.A(i, j) * f;
                        end
                    end
-                   solx(:, k+1) = solx(:, k+1) + obj.grid.h*obj.b(i) * obj.dynamics.F(soly(:, k, i), key);
+                   [obj.dynamics, f] = obj.dynamics.F(soly(:, k, i), key);
+                   solx(:, k+1) = solx(:, k+1) + obj.grid.h*obj.b(i) * f;
                 end
             end
         end
